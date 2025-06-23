@@ -1,7 +1,5 @@
-# durian_order_bot.py
-
 import os
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+import json
 import logging
 from telegram import Update
 from telegram.ext import (
@@ -18,8 +16,7 @@ logging.basicConfig(level=logging.INFO)
 # Define conversation states
 NAME, PHONE, DURIAN, QTY, PACKING, ADDRESS, DELIVERYDATE, DELIVERYTIME = range(8)
 
-import json
-
+# Google Sheets setup
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 
 creds_json = os.getenv("GOOGLE_CREDS_JSON")
@@ -65,15 +62,12 @@ async def get_packing(update, context):
 async def get_address(update, context):
     user_input = update.message.text.strip()
     
-    # Simple validation example: check minimum length or pattern
     if len(user_input) < 10:
         await update.message.reply_text("That doesn't look like a valid address. Please enter in the format: Block, Street, #Unit number, Singapore XXXXXX")
-        return ADDRESS  # Stay in the ADDRESS state and ask again
+        return ADDRESS
     
-    # Save valid address
     context.user_data['address'] = user_input
     
-    # Proceed to next step or end conversation
     await update.message.reply_text("Thanks for the address! \U0001F4C5 What's your preferred delivery date? E.g. 25 Jun 25")
     return DELIVERYDATE
 
@@ -89,7 +83,6 @@ async def get_deliverytime(update, context):
     fields = ['name', 'phone', 'durian', 'qty', 'packing', 'address', 'deliverydate', 'deliverytime']
     row = [context.user_data.get(field, "") for field in fields]
     
-    # Add timestamp at the beginning
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     row_with_timestamp = [timestamp] + row
 
@@ -103,7 +96,7 @@ async def get_deliverytime(update, context):
 
 # Cancel command
 async def cancel(update, context):
-    context.user_data.clear()  # Wipe saved answers
+    context.user_data.clear()
     await update.message.reply_text("\u274C Order cancelled. You can /start again anytime.")
     return ConversationHandler.END
 
@@ -116,11 +109,7 @@ async def view_orders(update: Update, context: ContextTypes.DEFAULT_TYPE):
         message += f"- {row[1]} ({row[2]}): {row[3]} {row[4]}kg to {row[5]}\n"
     await update.message.reply_text(message)
 
-# Main function
 if __name__ == '__main__':
-    app = ApplicationBuilder().token(os.environ["BOT_TOKEN"]).build()
-
-    import os
     app = ApplicationBuilder().token(os.environ["BOT_TOKEN"]).build()
 
     conv_handler = ConversationHandler(
