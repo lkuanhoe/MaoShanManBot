@@ -82,12 +82,16 @@ async def get_deliverydate(update, context):
 
 async def get_deliverytime(update, context):
     context.user_data['deliverytime'] = update.message.text
-    await update.message.reply_text("\u2705 Order received! We'll contact you shortly. Thank you!")
+
+    from datetime import datetime
+    from zoneinfo import ZoneInfo
+    now_sg = datetime.now(ZoneInfo("Asia/Singapore"))
+    timestamp = now_sg.strftime("%Y-%m-%d %H:%M:%S")
+
+    print(f"Order timestamp: {timestamp}")  # <-- Add it here to debug the timestamp
 
     fields = ['name', 'phone', 'durian', 'qty', 'packing', 'address', 'deliverydate', 'deliverytime']
     row = [context.user_data.get(field, "") for field in fields]
-    
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     row_with_timestamp = [timestamp] + row
 
     try:
@@ -96,6 +100,7 @@ async def get_deliverytime(update, context):
         print("Error writing to sheet:", e)
         await update.message.reply_text("⚠️ Something went wrong while saving your order.")
 
+    await update.message.reply_text("\u2705 Order received! We'll contact you shortly. Thank you!")
     return ConversationHandler.END
 
 # Cancel command
