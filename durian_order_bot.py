@@ -1,4 +1,7 @@
 # durian_order_bot.py
+
+import os
+BOT_TOKEN = os.getenv("7229947386:AAEG3Nziac1PvSboQo1x0fTZv2Rg_Hk048Q")
 import logging
 from telegram import Update
 from telegram.ext import (
