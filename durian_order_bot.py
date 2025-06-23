@@ -9,6 +9,10 @@ from telegram.ext import (
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
+from zoneinfo import ZoneInfo
+
+now_sg = datetime.now(ZoneInfo("Asia/Singapore"))
+timestamp = now_sg.strftime("%Y-%m-%d %H:%M:%S")
 
 # Enable logging
 logging.basicConfig(level=logging.INFO)
