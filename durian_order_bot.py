@@ -1,7 +1,7 @@
 # durian_order_bot.py
 
 import os
-BOT_TOKEN = os.getenv("7229947386:AAEG3Nziac1PvSboQo1x0fTZv2Rg_Hk048Q")
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 import logging
 from telegram import Update
 from telegram.ext import (
@@ -18,9 +18,16 @@ logging.basicConfig(level=logging.INFO)
 # Define conversation states
 NAME, PHONE, DURIAN, QTY, PACKING, ADDRESS, DELIVERYDATE, DELIVERYTIME = range(8)
 
-# Google Sheets setup
+import json
+
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+
+creds_json = os.getenv("GOOGLE_CREDS_JSON")
+if not creds_json:
+    raise Exception("Missing GOOGLE_CREDS_JSON environment variable")
+
+creds_dict = json.loads(creds_json)
+creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 client = gspread.authorize(creds)
 sheet = client.open("Durian Orders").sheet1
 
@@ -111,7 +118,7 @@ async def view_orders(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # Main function
 if __name__ == '__main__':
-    app = ApplicationBuilder().token("7229947386:AAEG3Nziac1PvSboQo1x0fTZv2Rg_Hk048Q").build()
+    app = ApplicationBuilder().token(os.environ["BOT_TOKEN"]).build()
 
     import os
     app = ApplicationBuilder().token(os.environ["BOT_TOKEN"]).build()
